@@ -1,0 +1,32 @@
+version: '2'
+services:
+    db:
+        image: mysql:5.7.40
+        container_name: wisemapping-db
+        environment:
+            MYSQL_ROOT_PASSWORD: "Root@1234"
+            MYSQL_DATABASE: wisemapping
+        ports:
+            - "3305:3306"
+        volumes:
+            - "./etc/config/mysql/create-database.sql:/docker-entrypoint-initdb.d/1.sql"
+            - "./etc/config/mysql/create-schemas.sql:/docker-entrypoint-initdb.d/2.sql"
+            - "./etc/config/mysql/apopulate-schemas.sql:/docker-entrypoint-initdb.d/3.sql"
+            - "./etc/volumes/mysql:/var/lib/mysql"
+        restart: always
+        healthcheck:
+            test: "mysql -uroot -p$$MYSQL_ROOT_PASSWORD  -e 'SELECT * FROM USER' wisemapping "
+            interval: 1s
+            timeout: 3s
+            retries: 10
+    wisemapping:
+        image: wisemapping/wisemapping:5.0.12
+        container_name: wisemapping-app
+        ports:
+            - '8080:8080'
+        volumes:
+            - "./etc/config/app/app.properties:/usr/local/tomcat/webapps/ROOT/WEB-INF/app.properties"
+        depends_on:
+            db:
+                condition: service_healthy
+

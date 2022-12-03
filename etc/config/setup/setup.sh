@@ -1,0 +1,2 @@
+#!/bin/sh
+curl -v "http://localhost:8080/service/admin/users" --request POST --basic -u "admin@wisemapping.org:test" -H "Content-Type:application/json" --data '{"email": "test@mail.com", "lastname": "Test", "firstname":"Test","password":"test"}'
